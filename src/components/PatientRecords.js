@@ -1,38 +1,105 @@
-import React from "react";
-import { AppBar, Toolbar, Button, Container, Box, Typography, Paper } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { AppBar, Toolbar, Button, Container, Box, Typography, Paper, Grid, CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
+import { db } from "../firebase"; // Firestore database
+import { collection, getDocs } from "firebase/firestore";
+import backgroundImage from "../aboutusback.png"; // Background image
 
 const PatientRecords = () => {
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "users"));
+        const patientList = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.role === "patient") {
+            patientList.push({ id: doc.id, ...data });
+          }
+        });
+        setPatients(patientList);
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+      }
+      setLoading(false);
+    };
+
+    fetchPatients();
+  }, []);
+
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "#f5f5f5" }}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        boxShadow: "inset 0 0 0 2000px rgba(0, 0, 0, 0.3)", // Dark overlay for readability
+        paddingBottom: "50px",
+      }}
+    >
       {/* Header */}
       <AppBar position="static" sx={{ background: "linear-gradient(to right, #2c5364, #0f2027)", padding: "10px 0" }}>
         <Toolbar sx={{ display: "flex", justifyContent: "center", gap: "40px" }}>
-          <Button component={Link} to="/" sx={{ color: "white", fontWeight: "bold", fontSize: "18px", letterSpacing: "1px" }}>Home</Button>
-          <Button component={Link} to="/about" sx={{ color: "white", fontSize: "18px", letterSpacing: "1px" }}>About Us</Button>
-          <Button component={Link} to="/services" sx={{ color: "white", fontSize: "18px", letterSpacing: "1px" }}>Services</Button>
-          <Button component={Link} to="/contact" sx={{ color: "white", fontSize: "18px", letterSpacing: "1px" }}>Contact</Button>
+          <Button component={Link} to="/" sx={{ color: "white", fontWeight: "bold", fontSize: "18px" }}>Home</Button>
+          <Button component={Link} to="/services" sx={{ color: "white", fontSize: "18px" }}>Services</Button>
+          <Button component={Link} to="/contact" sx={{ color: "white", fontSize: "18px" }}>Contact</Button>
         </Toolbar>
       </AppBar>
 
       {/* Page Content */}
       <Container sx={{ padding: "60px 0", textAlign: "center" }}>
-        <Typography variant="h4" sx={{ fontWeight: "bold", marginBottom: "30px" }}>Patient Records Management</Typography>
-        <Typography variant="body1" sx={{ maxWidth: "700px", margin: "auto", opacity: "0.9", fontSize: "18px" }}>
-          Manage, update, and securely store patient records with our easy-to-use system.
+        <Typography variant="h4" sx={{ fontWeight: "bold", color: "white", marginBottom: "30px" }}>
+          Patient Records Management
         </Typography>
 
-        <Box sx={{ marginTop: "40px", display: "flex", justifyContent: "center" }}>
-          <Paper elevation={4} sx={{ padding: "40px", width: "100%", maxWidth: "600px", borderRadius: "15px", textAlign: "center" }}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: "15px" }}>Start Managing Records</Typography>
-            <Typography variant="body2" sx={{ opacity: "0.8", marginBottom: "20px" }}>
-              Click below to access patient records and manage their details.
-            </Typography>
-            <Button component={Link} to="/dashboard" variant="contained" sx={{ backgroundColor: "#0d3b66", color: "white", borderRadius: "25px", fontSize: "16px", padding: "10px 25px", "&:hover": { backgroundColor: "#09234B" } }}>
-              Go to Dashboard
-            </Button>
-          </Paper>
-        </Box>
+        {loading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", marginTop: "30px" }}>
+            <CircularProgress />
+          </Box>
+        ) : patients.length === 0 ? (
+          <Typography variant="body1" sx={{ color: "white", marginTop: "20px" }}>No patient records available.</Typography>
+        ) : (
+          <Grid container spacing={3} justifyContent="center">
+            {patients.map((patient) => (
+              <Grid item xs={12} key={patient.id}>
+                <Paper
+                  elevation={4}
+                  sx={{
+                    padding: "20px",
+                    borderRadius: "12px",
+                    textAlign: "left",
+                    backgroundColor: "rgba(255, 255, 255, 0.9)",
+                    transition: "0.3s",
+                    maxWidth: "900px", // ✅ Restricts the width for better readability
+                    margin: "0 auto", // ✅ Centers it on the page
+                    "&:hover": {
+                      boxShadow: "0px 4px 30px rgba(0,0,0,0.3)",
+                      transform: "translateY(-5px)",
+                    },
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="bold" color="#0f2027">
+                    {patient.username}
+                  </Typography>
+                  <Typography variant="body2" color="gray">
+                    Email: {patient.email}
+                  </Typography>
+                  <Typography variant="body2" color="gray">
+                    Age: {patient.age}
+                  </Typography>
+                  <Typography variant="body2" color="gray">
+                    Gender: {patient.gender}
+                  </Typography>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Container>
     </Box>
   );

@@ -1,8 +1,24 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
+import { useAuth } from "../components/AuthContext"; // Global Auth Context
 
 const Navbar = () => {
+  const { user, setUser } = useAuth(); // Get logged-in user
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null); // Clear user session
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
   return (
     <AppBar
       position="static"
@@ -38,22 +54,64 @@ const Navbar = () => {
           </Typography>
         </Box>
 
-        {/* Right: Contact Button */}
-        <Button
-          component={Link}
-          to="/contact"
-          variant="contained"
-          sx={{
-            backgroundColor: "#0D2C4B",
-            borderRadius: "20px",
-            padding: "8px 20px",
-            textTransform: "none",
-            fontWeight: "bold",
-            "&:hover": { backgroundColor: "#0B243B" },
-          }}
-        >
-          Contact
-        </Button>
+        {/* Right: Dynamic Buttons */}
+        <Box sx={{ display: "flex", gap: "15px" }}>
+          {user ? (
+            <>
+              <Button
+                component={Link}
+                to={
+                  user.role === "doctor"
+                    ? "/doctor-dashboard"
+                    : user.role === "hospital"
+                    ? "/admin-dashboard"
+                    : "/patient-dashboard"
+                }
+                variant="outlined"
+                sx={{
+                  color: "white",
+                  borderColor: "white",
+                  borderRadius: "20px",
+                  textTransform: "none",
+                  fontWeight: "bold",
+                  "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
+                }}
+              >
+                Dashboard
+              </Button>
+              <Button
+                onClick={handleLogout}
+                variant="contained"
+                sx={{
+                  backgroundColor: "#0D2C4B",
+                  borderRadius: "20px",
+                  padding: "8px 20px",
+                  textTransform: "none",
+                  fontWeight: "bold",
+                  "&:hover": { backgroundColor: "#0B243B" },
+                }}
+              >
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <Button
+              component={Link}
+              to="/login"
+              variant="contained"
+              sx={{
+                backgroundColor: "#0D2C4B",
+                borderRadius: "20px",
+                padding: "8px 20px",
+                textTransform: "none",
+                fontWeight: "bold",
+                "&:hover": { backgroundColor: "#0B243B" },
+              }}
+            >
+              Sign In
+            </Button>
+          )}
+        </Box>
       </Toolbar>
     </AppBar>
   );

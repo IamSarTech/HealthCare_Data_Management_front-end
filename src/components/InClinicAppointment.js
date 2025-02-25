@@ -1,32 +1,32 @@
-import React, { useState } from "react";
-import { Container, Typography, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, AppBar, Toolbar, Button } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Container, Typography, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, AppBar, Toolbar, Button, CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
+import { db } from "../firebase"; // Import Firestore instance
+import { collection, getDocs } from "firebase/firestore"; // Firestore methods
 
 const InClinicAppointments = () => {
-  // Mock data for completed appointments
-  const [appointments] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      doctor: "Dr. Smith - Cardiologist",
-      date: "2025-02-06",
-      time: "10:00 AM",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      doctor: "Dr. Patel - Orthopedic",
-      date: "2025-02-07",
-      time: "11:30 AM",
-    },
-    {
-      id: 3,
-      name: "Michael Lee",
-      doctor: "Dr. Lee - Neurologist",
-      date: "2025-02-08",
-      time: "02:00 PM",
-    },
-  ]);
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch appointments from Firestore
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "inclinic_appointments"));
+        const fetchedAppointments = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setAppointments(fetchedAppointments);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
 
   return (
     <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -46,32 +46,43 @@ const InClinicAppointments = () => {
           In-Clinic Appointments
         </Typography>
 
-        {/* Table of completed in-clinic appointments */}
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell><strong>Name</strong></TableCell>
-                <TableCell><strong>Doctor</strong></TableCell>
-                <TableCell><strong>Date</strong></TableCell>
-                <TableCell><strong>Time</strong></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {appointments.map((appointment) => (
-                <TableRow key={appointment.id}>
-                  <TableCell>{appointment.name}</TableCell>
-                  <TableCell>{appointment.doctor}</TableCell>
-                  <TableCell>{appointment.date}</TableCell>
-                  <TableCell>{appointment.time}</TableCell>
+        {loading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell><strong>Name</strong></TableCell>
+                  <TableCell><strong>Doctor</strong></TableCell>
+                  <TableCell><strong>Date</strong></TableCell>
+                  <TableCell><strong>Time</strong></TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {appointments.length > 0 ? (
+                  appointments.map((appointment) => (
+                    <TableRow key={appointment.id}>
+                      <TableCell>{appointment.name}</TableCell>
+                      <TableCell>{appointment.doctor}</TableCell>
+                      <TableCell>{appointment.date}</TableCell>
+                      <TableCell>{appointment.time}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">No appointments found</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
       </Container>
 
-      {/* Footer - Moved to the bottom */}
+      {/* Footer */}
       <Box sx={{ backgroundColor: "#1976D2", color: "white", textAlign: "center", padding: "20px" }}>
         <Typography variant="body2">© 2025 Healthify. All rights reserved.</Typography>
       </Box>

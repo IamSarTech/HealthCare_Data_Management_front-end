@@ -113,7 +113,7 @@ const OurServices = () => {
               <Paper sx={{ padding: "30px", borderRadius: "15px" }}>
                 <Typography variant="h6" fontWeight="bold">📅 Book an Appointment</Typography>
                 <Typography variant="body2" sx={{ marginTop: "10px", opacity: "0.8" }}>Schedule a consultation with our specialists.</Typography>
-                <Button component={Link} to="/appointment-booking" fullWidth variant="contained" sx={{ marginTop: "20px", backgroundColor: "#0d3b66", color: "white", borderRadius: "25px", padding: "10px 25px", fontSize: "16px", "&:hover": { backgroundColor: "#09234B" } }}>
+                <Button component={Link} to="/book-appointment" fullWidth variant="contained" sx={{ marginTop: "20px", backgroundColor: "#0d3b66", color: "white", borderRadius: "25px", padding: "10px 25px", fontSize: "16px", "&:hover": { backgroundColor: "#09234B" } }}>
                   Book Now
                 </Button>
               </Paper>
