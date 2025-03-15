@@ -92,7 +92,7 @@ const Home = () => {
                     Welcome to Healthify
                   </Typography>
                   <Typography variant="h6" sx={{ maxWidth: "600px", opacity: "0.9", fontSize: "20px", textAlign: "justify", lineHeight: "1.6" }}>
-                    Revolutionizing healthcare through smart technology. Experience seamless patient care, instant appointments, and secure medical records - all in one place.
+                    Revolutionizing healthcare through smart technology. Experience seamless patient care, instant appointment, and secure medical records - all in one place.
                   </Typography>
                   <Button variant="contained" color="secondary" sx={{ marginTop: "25px", fontSize: "18px", padding: "12px 30px", borderRadius: "30px", fontWeight: "bold" }} component={Link} to="/dashboard-selection">
                     Get Started
