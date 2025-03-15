@@ -124,7 +124,7 @@ const Home = () => {
 
       {/* Footer */}
       <Box sx={{ backgroundColor: "#1976D2", color: "white", textAlign: "center", padding: "20px", marginTop: "auto" }}>
-        <Typography variant="body2">© 2025 Healthify. All rights reserved.</Typography>
+        <Typography variant="body2">© 2025 Healthify. All rights reserved. By 422 and 441. </Typography>
       </Box>
 
     </Box>
